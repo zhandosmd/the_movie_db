@@ -9,7 +9,7 @@ class SessionDataProvider{
 
   Future<String?> getSessionId() => _secureStorage.read(key: _Keys.sessionId);
 
-  Future<void> setSessionId(String value){
+  Future<void> setSessionId(String? value){
     if(value != null){
       return _secureStorage.write(key: _Keys.sessionId, value: value);
     }else{

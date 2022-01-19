@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:the_movie_db/Library/Widgets/Inherited/provider.dart';
+import 'package:the_movie_db/domain/data_providers/session_data_prodiver.dart';
+import 'package:the_movie_db/ui/widgets/main_screen/main_screen_model.dart';
 import 'package:the_movie_db/ui/widgets/movie_list/movie_list_widget.dart';
 
 class MainScreenWidget extends StatefulWidget {
@@ -20,6 +23,7 @@ class _MainScreenWidgetState extends State<MainScreenWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final model = NotifierProvider.read<MainScreenModel>(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('TMDB'),
@@ -27,7 +31,12 @@ class _MainScreenWidgetState extends State<MainScreenWidget> {
       body: IndexedStack( // хранить все виджеты на памяти тем самым сохраняя стейт
         index: _selectedTab,
         children: [
-          const Text('Новости'),
+          GestureDetector(
+            onTap: (){
+              SessionDataProvider().setSessionId(null);
+            },
+            child: Center(child: const Text('Новости'))
+          ),
           MovieListWidget(),
           const Text('Сериалы'),
         ],
