@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:the_movie_db/domain/api_client/api_client.dart';
 import 'package:the_movie_db/domain/data_providers/session_data_prodiver.dart';
+import 'package:the_movie_db/ui/navigation/main_navigation.dart';
 
 class AuthModel extends ChangeNotifier {
   final _apiClient = ApiClient();
   final _sessionDataProvider = SessionDataProvider();
+
   final loginTextController = TextEditingController(text: 'zhandosmd');
   final passwordTextController = TextEditingController(text: 'Qazaq123');
 
@@ -44,7 +46,7 @@ class AuthModel extends ChangeNotifier {
       return;
     }
     await _sessionDataProvider.setSessionId(sessionId);
-    Navigator.of(context).pushNamed('/main_screen');
+    Navigator.of(context).pushReplacementNamed(MainNavigationRouteNames.mainScreen);
 
   }
 }

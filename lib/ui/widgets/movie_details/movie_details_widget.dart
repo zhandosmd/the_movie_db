@@ -21,6 +21,7 @@ class _MovieDetailsWidgetState extends State<MovieDetailsWidget> {
       body: ColoredBox(
         color: const Color.fromRGBO(24, 23, 27, 1.0),
         child: ListView(
+          physics: const BouncingScrollPhysics(),
           children: const [
             MovieDetailsMainInfoWidget(),
             SizedBox(height: 30,),

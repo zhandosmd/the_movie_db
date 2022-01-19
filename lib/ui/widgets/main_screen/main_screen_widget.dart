@@ -23,7 +23,6 @@ class _MainScreenWidgetState extends State<MainScreenWidget> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('TMDB'),
-        automaticallyImplyLeading: false,
       ),
       body: IndexedStack( // хранить все виджеты на памяти тем самым сохраняя стейт
         index: _selectedTab,

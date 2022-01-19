@@ -6,9 +6,9 @@ import 'package:the_movie_db/ui/widgets/main_screen/main_screen_widget.dart';
 import 'package:the_movie_db/ui/widgets/movie_details/movie_details_widget.dart';
 
 abstract class MainNavigationRouteNames{
-  static const auth = '/auth';
-  static const mainScreen = '/main_screen';
-  static const movieDetails = '/main_screen/movie_details';
+  static const auth = 'auth';
+  static const mainScreen = '/';
+  static const movieDetails = '/movie_details';
 }
 
 class MainNavigation{
@@ -18,11 +18,11 @@ class MainNavigation{
 
   final routes = <String, Widget Function(BuildContext)>{
     // статичные, снизу с аргументами
-    '/auth': (context) => AuthProvider(
+    MainNavigationRouteNames.auth: (context) => AuthProvider(
         model: AuthModel(),
         child: const AuthWidget()
     ),
-    '/main_screen': (context) => const MainScreenWidget(),
+    MainNavigationRouteNames.mainScreen: (context) => const MainScreenWidget(),
   };
 
   Route<Object> onGenerateRoute(RouteSettings settings){
