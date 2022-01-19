@@ -5,8 +5,8 @@ import 'package:the_movie_db/domain/data_providers/session_data_prodiver.dart';
 class AuthModel extends ChangeNotifier {
   final _apiClient = ApiClient();
   final _sessionDataProvider = SessionDataProvider();
-  final loginTextController = TextEditingController();
-  final passwordTextController = TextEditingController();
+  final loginTextController = TextEditingController(text: 'zhandosmd');
+  final passwordTextController = TextEditingController(text: 'Qazaq123');
 
   String? _errorMessage;
   String? get errorMessage => _errorMessage;

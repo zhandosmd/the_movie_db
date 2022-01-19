@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:the_movie_db/ui/navigation/main_navigation.dart';
 import 'package:the_movie_db/ui/theme/app_colors.dart';
-import 'package:the_movie_db/ui/widgets/auth/auth_model.dart';
-import 'package:the_movie_db/ui/widgets/auth/auth_widget.dart';
-import 'package:the_movie_db/ui/widgets/main_screen/main_screen_widget.dart';
 
 class MyApp extends StatelessWidget {
+  static final mainNavigation = MainNavigation(); // static потому чтобы не пересоздавалось, когда виджет заново создается
   const MyApp({Key? key}) : super(key: key);
 
   @override
@@ -23,22 +22,9 @@ class MyApp extends StatelessWidget {
           unselectedItemColor: Colors.grey
         )
       ),
-      initialRoute: '/auth',
-      routes: {
-        '/auth': (context) => AuthProvider(
-          model: AuthModel(),
-          child: const AuthWidget()
-        ),
-        '/main_screen': (context) => const MainScreenWidget(),
-        // '/main_screen/movie_details': (context){
-        //   final arguments = ModalRoute.of(context)?.settings.arguments;
-        //   if(arguments is int){
-        //     return
-        //   }else{
-        //
-        //   }
-        // },
-      },
+      initialRoute: mainNavigation.initialRoute(false),
+      routes: mainNavigation.routes,
+      onGenerateRoute: mainNavigation.onGenerateRoute,
     );
   }
 }
