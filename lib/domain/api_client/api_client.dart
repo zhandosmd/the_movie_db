@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:the_movie_db/domain/entity/popular_movie_response.dart';
+
 enum ApiClienExceptionType{ Network, Auth, Other }
 
 class ApiClienException implements Exception{
@@ -12,8 +14,10 @@ class ApiClienException implements Exception{
 class ApiClient {
   final _client = HttpClient();
   static const _host = "https://api.themoviedb.org/3";
-  // static const _imageUrl = "ч";
+  static const _imageUrl = "https://image.tmdb.org/t/p/w500";
   static const _apiKey = "372932cdecf5549b41a2e614792df3c1";
+
+  static String imageUrl(String path) => _imageUrl + path;
 
   Future<String> auth({
     required String username,
@@ -83,12 +87,29 @@ class ApiClient {
   }
 
   Future<String> _makeToken() async {
-    final parser = (dynamic json){
+    String parser(dynamic json){
       final jsonMap = json as Map<String, dynamic>;
       final token = jsonMap['request_token'] as String;
       return token;
-    };
+    }
     final result = _get("/authentication/token/new", parser, <String, dynamic>{'api_key': _apiKey});
+    return result;
+  }
+
+  Future<PopularMovieResponse> popularMovie(int page, String locale) async {
+    PopularMovieResponse parser(dynamic json){
+      final jsonMap = json as Map<String, dynamic>;
+      final response = PopularMovieResponse.fromJson(jsonMap);
+      return response;
+    }
+    final result = _get(
+      "/movie/popular",
+      parser,
+      <String, dynamic>{
+        'api_key': _apiKey,
+        'page': page.toString(),
+        'language': locale
+      });
     return result;
   }
 
@@ -96,11 +117,11 @@ class ApiClient {
       {required String username,
       required String password,
       required String requestToken}) async {
-    final parser = (dynamic json){
+    String parser(dynamic json){
       final jsonMap = json as Map<String, dynamic>;
       final token = jsonMap['request_token'] as String;
       return token;
-    };
+    }
     final parameters = <String, dynamic>{
       'username': username,
       'password': password,
@@ -117,11 +138,11 @@ class ApiClient {
 
   Future<String> _makeSession({required String requestToken}) async {
 
-    final parser = (dynamic json){
+    String parser(dynamic json){
       final jsonMap = json as Map<String, dynamic>;
       final sessionId = json['session_id'] as String;
       return sessionId;
-    };
+    }
     final parameters = <String, dynamic>{
       'request_token': requestToken,
     };
