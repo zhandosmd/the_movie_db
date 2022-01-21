@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:the_movie_db/domain/api_client/api_client.dart';
 import 'package:the_movie_db/domain/data_providers/session_data_prodiver.dart';
@@ -31,9 +33,18 @@ class AuthModel extends ChangeNotifier {
     String? sessionId;
     try{
       sessionId = await _apiClient.auth(username: login, password: password);
-    }catch(e){
-      print(e);
-      _errorMessage = "Неверный пароль или логин";
+    } on ApiClienException catch (e){
+      switch(e.type){
+        case ApiClienExceptionType.Network:
+          _errorMessage = "Сервер не доступен. Проверьте подключение к интернету";
+          break;
+        case ApiClienExceptionType.Auth:
+          _errorMessage = "Неверный логин пароль!";
+          break;
+        case ApiClienExceptionType.Other:
+          _errorMessage = "Произошла ошибка. Попробуйте еще раз";
+          break;
+      }
     }
     _isAuthProgress = false;
     if(_errorMessage!=null){
@@ -47,6 +58,5 @@ class AuthModel extends ChangeNotifier {
     }
     await _sessionDataProvider.setSessionId(sessionId);
     Navigator.of(context).pushReplacementNamed(MainNavigationRouteNames.mainScreen);
-
   }
 }
