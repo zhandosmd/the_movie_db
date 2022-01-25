@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:the_movie_db/Library/Widgets/Inherited/provider.dart';
 import 'package:the_movie_db/domain/api_client/api_client.dart';
+import 'package:the_movie_db/domain/entity/movie_details_credits.dart';
 
 import 'movie_details_model.dart';
 
@@ -28,8 +29,10 @@ class MovieDetailsMainInfoWidget extends StatelessWidget {
           child: _DescriptionWidget(),
         ),
         SizedBox(height: 30,),
-        _PeopleWidget()
-
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: _PeopleWidget(),
+        )
       ],
     );
   }
@@ -218,6 +221,48 @@ class _PeopleWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final model = NotifierProvider.watch<MovieDetailsModel>(context);
+    var crew = model?.movieDetails?.credits.crew;
+    if(crew == null || crew.isEmpty) return const SizedBox.shrink();
+    crew = (crew.length>4) ? crew.sublist(0, 4) : crew;
+    var crewChunks = <List<Employee>>[];
+    for(var i = 0; i < crew.length; i+=2){
+      crewChunks.add(
+        crew.sublist(i, i+2>crew.length ? crew.length : i+2),
+      );
+    }
+    return Column(
+      children: crewChunks
+        .map((chunk) => Padding(
+          padding: const EdgeInsets.only(bottom: 20),
+          child: _PeopleWidgetsRow(employes: chunk,),
+        ))
+        .toList(),
+    );
+  }
+}
+
+class _PeopleWidgetsRow extends StatelessWidget {
+  final List<Employee> employes;
+  const _PeopleWidgetsRow({Key? key, required this.employes}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      children: employes
+        .map((employee) => _PeopleWidgetsRowItem(employee: employee,))
+        .toList(),
+    );
+  }
+}
+
+class _PeopleWidgetsRowItem extends StatelessWidget {
+  final Employee employee;
+  const _PeopleWidgetsRowItem({Key? key, required this.employee}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     const nameStyle = TextStyle(
         fontSize: 16,
         color: Colors.white
@@ -226,53 +271,19 @@ class _PeopleWidget extends StatelessWidget {
         fontSize: 16,
         color: Colors.white
     );
-    return Column(
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text('Stefano Sollima', style: nameStyle,),
-                Text('Director', style: jobStyle),
-              ],
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text('Tom Clancy', style: nameStyle,),
-                Text('Novel', style: jobStyle),
-              ],
-            ),
-          ],
-        ),
-        const SizedBox(height: 20,),
-        Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text('Stefano Sollima', style: nameStyle,),
-                Text('Director', style: jobStyle),
-              ],
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text('Tom Clancy', style: nameStyle,),
-                Text('Novel', style: jobStyle),
-              ],
-            ),
-          ],
-        ),
-      ],
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(employee.name, style: nameStyle,),
+          Text(employee.job, style: jobStyle),
+        ],
+      ),
     );
   }
 }
+
+
 
 
 
