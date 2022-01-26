@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:the_movie_db/domain/api_client/api_client.dart';
 import 'package:the_movie_db/domain/data_providers/session_data_prodiver.dart';
 import 'package:the_movie_db/domain/entity/movie_details.dart';
+import 'package:the_movie_db/ui/navigation/main_navigation.dart';
 
 class MovieDetailsModel extends ChangeNotifier{
   final _sessionDataProvider = SessionDataProvider();
@@ -13,6 +14,7 @@ class MovieDetailsModel extends ChangeNotifier{
   MovieDetails? _movieDetails;
   String _locale = '';
   late DateFormat _dateFormat;
+  Future<void>? Function()? onSessionExpired;
 
   MovieDetailsModel(this.movieId);
 
@@ -30,12 +32,16 @@ class MovieDetailsModel extends ChangeNotifier{
   }
 
   Future<void> loadDetails() async{
-    _movieDetails = await _apiClient.movieDetails(movieId, _locale);
-    final sessionId = await _sessionDataProvider.getSessionId();
-    if(sessionId != null){
-      _isFavourite = await _apiClient.movieStates(movieId, sessionId);
+    try{
+      _movieDetails = await _apiClient.movieDetails(movieId, _locale);
+      final sessionId = await _sessionDataProvider.getSessionId();
+      if(sessionId != null){
+        _isFavourite = await _apiClient.movieStates(movieId, sessionId);
+      }
+      notifyListeners();
+    }on ApiClienException catch (e){
+      _handleApiClientException(e);
     }
-    notifyListeners();
   }
 
   Future<void> markAsFavourite() async {
@@ -46,12 +52,26 @@ class MovieDetailsModel extends ChangeNotifier{
 
     _isFavourite = !_isFavourite;
     notifyListeners();
-    _apiClient.markAsFavourite(
-        accountId: accountId,
-        sessionId: sessionId,
-        mediaType: MediaType.Movie,
-        mediaId: movieId,
-        isFavourite: _isFavourite
-    );
+    try{
+      await _apiClient.markAsFavourite(
+          accountId: accountId,
+          sessionId: sessionId,
+          mediaType: MediaType.Movie,
+          mediaId: movieId,
+          isFavourite: _isFavourite
+      );
+    }on ApiClienException catch (e){
+      _handleApiClientException(e);
+    }
+  }
+
+  void _handleApiClientException(ApiClienException exception) {
+    switch(exception.type){
+      case ApiClienExceptionType.SessionExpired:
+        onSessionExpired?.call();
+      break;
+    default:
+      print(exception);
+    }
   }
 }

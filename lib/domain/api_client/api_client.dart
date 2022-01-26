@@ -1,11 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:the_movie_db/domain/data_providers/session_data_prodiver.dart';
 import 'package:the_movie_db/domain/entity/popular_movie_response.dart';
 import 'package:the_movie_db/domain/entity/movie_details.dart';
 
-enum ApiClienExceptionType { Network, Auth, Other }
+enum ApiClienExceptionType { Network, Auth, Other, SessionExpired }
 
 class ApiClienException implements Exception {
   final ApiClienExceptionType type;
@@ -252,7 +251,9 @@ class ApiClient {
     if (response.statusCode == 401) {
       final dynamic status = json['status_code'];
       final code = status is int ? status : 0;
-      if (code == 30) {
+      if(code == 3){
+        throw ApiClienException(ApiClienExceptionType.SessionExpired);
+      }else if (code == 30) {
         throw ApiClienException(ApiClienExceptionType.Auth);
       } else {
         throw ApiClienException(ApiClienExceptionType.Other);
