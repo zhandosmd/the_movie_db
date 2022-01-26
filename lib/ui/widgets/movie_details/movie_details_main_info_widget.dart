@@ -46,8 +46,12 @@ class _DescriptionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final overview = NotifierProvider.watch<MovieDetailsModel>(context)?.movieDetails?.overview ?? '';
-    return Text(overview, style: const TextStyle(fontSize:16, color: Colors.white),);
+    final overview = NotifierProvider
+        .watch<MovieDetailsModel>(context)
+        ?.movieDetails
+        ?.overview ?? '';
+    return Text(
+      overview, style: const TextStyle(fontSize: 16, color: Colors.white),);
   }
 }
 
@@ -59,12 +63,12 @@ class _OverviewWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Text(
-      'Overview',
-      style: TextStyle(
-        fontWeight: FontWeight.w600,
-        fontSize: 17,
-        color: Colors.white
-      )
+        'Overview',
+        style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 17,
+            color: Colors.white
+        )
     );
   }
 }
@@ -81,16 +85,28 @@ class _TopPosterWidget extends StatelessWidget {
       aspectRatio: 390 / 219,
       child: Stack(
         children: [
-          (backdropPath!=null)
-            ? Image.network(ApiClient.imageUrl(backdropPath))
-            : const SizedBox.shrink(),
+          (backdropPath != null)
+              ? Image.network(ApiClient.imageUrl(backdropPath))
+              : const SizedBox.shrink(),
           Positioned(
-            top: 20,
-            left: 20,
-            bottom: 20,
-            child: (posterPath!=null)
-                ? Image.network(ApiClient.imageUrl(posterPath))
-                : const SizedBox.shrink()
+              top: 20,
+              left: 20,
+              bottom: 20,
+              child: (posterPath != null)
+                  ? Image.network(ApiClient.imageUrl(posterPath))
+                  : const SizedBox.shrink()
+          ),
+          Positioned(
+              top: 5,
+              right: 5,
+              child: IconButton(
+                onPressed: (){
+                  model?.markAsFavourite();
+                },
+                icon: (model?.isFavourite == true)
+                    ?const Icon(Icons.favorite)
+                    :const Icon(Icons.favorite_border),
+              )
           )
         ],
       ),
@@ -109,24 +125,24 @@ class _MovieNameWidget extends StatelessWidget {
 
     return Center(
       child: RichText(
-        maxLines: 3,
-        textAlign: TextAlign.center,
-        text: TextSpan(
-          children: [
-            TextSpan(
-              text: model?.movieDetails?.title ?? '',
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 17
-              )),
-            TextSpan(
-              text: year,
-              style: const TextStyle(
-                fontWeight: FontWeight.w400,
-                fontSize: 16
-              )),
-          ]
-        )),
+          maxLines: 3,
+          textAlign: TextAlign.center,
+          text: TextSpan(
+              children: [
+                TextSpan(
+                    text: model?.movieDetails?.title ?? '',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 17
+                    )),
+                TextSpan(
+                    text: year,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 16
+                    )),
+              ]
+          )),
     );
   }
 }
@@ -136,7 +152,9 @@ class _ScoreWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final movieDetails = NotifierProvider.watch<MovieDetailsModel>(context)?.movieDetails;
+    final movieDetails = NotifierProvider
+        .watch<MovieDetailsModel>(context)
+        ?.movieDetails;
     var voteAverage = movieDetails?.voteAverage ?? 0;
     voteAverage.toInt();
 
@@ -147,7 +165,7 @@ class _ScoreWidget extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        TextButton(onPressed: (){}, child: Row(
+        TextButton(onPressed: () {}, child: Row(
           children: [
             // Icon(Icons.score_rounded),
             Text('$voteAverage', style: const TextStyle(fontSize: 20),),
@@ -161,17 +179,18 @@ class _ScoreWidget extends StatelessWidget {
           color: Colors.grey,
         ),
         (trailerKey != null) ? TextButton(
-          onPressed: () => Navigator.of(context).pushNamed(
-              MainNavigationRouteNames.movieTrailer,
-              arguments: trailerKey
-          ),
-          child: Row(
-            children: const [
-              Icon(Icons.play_arrow),
-              SizedBox(width: 10,),
-              Text('Play Trailer'),
-            ],
-        )) : const SizedBox.shrink(),
+            onPressed: () =>
+                Navigator.of(context).pushNamed(
+                    MainNavigationRouteNames.movieTrailer,
+                    arguments: trailerKey
+                ),
+            child: Row(
+              children: const [
+                Icon(Icons.play_arrow),
+                SizedBox(width: 10,),
+                Text('Play Trailer'),
+              ],
+            )) : const SizedBox.shrink(),
       ],
     );
   }
@@ -184,14 +203,14 @@ class _SummaryWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = NotifierProvider.watch<MovieDetailsModel>(context);
-    if(model==null) return const SizedBox.shrink();
+    if (model == null) return const SizedBox.shrink();
     var texts = <String>[];
     final releaseDate = model.movieDetails?.releaseDate;
-    if(releaseDate != null){
+    if (releaseDate != null) {
       texts.add(model.stringFromDate(releaseDate));
     }
     final productionCountries = model.movieDetails?.productionCountries;
-    if(productionCountries != null && productionCountries.isNotEmpty){
+    if (productionCountries != null && productionCountries.isNotEmpty) {
       texts.add('(${productionCountries.first.iso})');
     }
     final runtime = model.movieDetails?.runtime ?? 0;
@@ -200,9 +219,9 @@ class _SummaryWidget extends StatelessWidget {
     final minutes = duration.inMinutes.remainder(60);
     texts.add('${hours}h ${minutes}m');
     final genres = model.movieDetails?.genres;
-    if(genres != null){
+    if (genres != null) {
       var genresNames = <String>[];
-      for(var genre in genres){
+      for (var genre in genres) {
         genresNames.add(genre.name);
       }
       texts.add(genresNames.join(', '));
@@ -217,8 +236,8 @@ class _SummaryWidget extends StatelessWidget {
           maxLines: 3,
           textAlign: TextAlign.center,
           style: const TextStyle(
-            fontSize: 16,
-            color: Colors.white
+              fontSize: 16,
+              color: Colors.white
           ),
         ),
       ),
@@ -233,43 +252,47 @@ class _PeopleWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final model = NotifierProvider.watch<MovieDetailsModel>(context);
     var crew = model?.movieDetails?.credits.crew;
-    if(crew == null || crew.isEmpty) return const SizedBox.shrink();
-    crew = (crew.length>4) ? crew.sublist(0, 4) : crew;
+    if (crew == null || crew.isEmpty) return const SizedBox.shrink();
+    crew = (crew.length > 4) ? crew.sublist(0, 4) : crew;
     var crewChunks = <List<Employee>>[];
-    for(var i = 0; i < crew.length; i+=2){
+    for (var i = 0; i < crew.length; i += 2) {
       crewChunks.add(
-        crew.sublist(i, i+2>crew.length ? crew.length : i+2),
+        crew.sublist(i, i + 2 > crew.length ? crew.length : i + 2),
       );
     }
     return Column(
       children: crewChunks
-        .map((chunk) => Padding(
-          padding: const EdgeInsets.only(bottom: 20),
-          child: _PeopleWidgetsRow(employes: chunk,),
-        ))
-        .toList(),
+          .map((chunk) =>
+          Padding(
+            padding: const EdgeInsets.only(bottom: 20),
+            child: _PeopleWidgetsRow(employes: chunk,),
+          ))
+          .toList(),
     );
   }
 }
 
 class _PeopleWidgetsRow extends StatelessWidget {
   final List<Employee> employes;
+
   const _PeopleWidgetsRow({Key? key, required this.employes}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-
     return Row(
       mainAxisSize: MainAxisSize.max,
       children: employes
-        .map((employee) => _PeopleWidgetsRowItem(employee: employee,))
-        .toList(),
+          .map((employee) => _PeopleWidgetsRowItem(employee: employee,))
+          .toList(),
     );
   }
 }
 
 class _PeopleWidgetsRowItem extends StatelessWidget {
   final Employee employee;
-  const _PeopleWidgetsRowItem({Key? key, required this.employee}) : super(key: key);
+
+  const _PeopleWidgetsRowItem({Key? key, required this.employee})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -48,7 +48,7 @@ class _ActorListWidget extends StatelessWidget {
     return ListView.builder(
       physics: const BouncingScrollPhysics(),
       scrollDirection: Axis.horizontal,
-      itemCount: 20,
+      itemCount: cast.length,
       itemExtent: 120,
       itemBuilder: (context, index){
         return _ActorListItemWidget(
