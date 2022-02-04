@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:the_movie_db/domain/api_client/api_client.dart';
+import 'package:the_movie_db/domain/api_client/account_api_client.dart';
+import 'package:the_movie_db/domain/api_client/movie_api_client.dart';
+import 'package:the_movie_db/domain/api_client/api_client_exception.dart';
 import 'package:the_movie_db/domain/data_providers/session_data_prodiver.dart';
 import 'package:the_movie_db/domain/entity/movie_details.dart';
-import 'package:the_movie_db/ui/navigation/main_navigation.dart';
 
 class MovieDetailsModel extends ChangeNotifier{
   final _sessionDataProvider = SessionDataProvider();
-  final _apiClient = ApiClient();
+  final _movieApiClient = MovieApiClient();
+  final _accountApiClient = AccountApiClient();
 
   final int movieId;
   bool _isFavourite = false;
@@ -33,10 +35,10 @@ class MovieDetailsModel extends ChangeNotifier{
 
   Future<void> loadDetails() async{
     try{
-      _movieDetails = await _apiClient.movieDetails(movieId, _locale);
+      _movieDetails = await _movieApiClient.movieDetails(movieId, _locale);
       final sessionId = await _sessionDataProvider.getSessionId();
       if(sessionId != null){
-        _isFavourite = await _apiClient.movieStates(movieId, sessionId);
+        _isFavourite = await _movieApiClient.movieStates(movieId, sessionId);
       }
       notifyListeners();
     }on ApiClienException catch (e){
@@ -53,10 +55,10 @@ class MovieDetailsModel extends ChangeNotifier{
     _isFavourite = !_isFavourite;
     notifyListeners();
     try{
-      await _apiClient.markAsFavourite(
+      await _accountApiClient.markAsFavourite(
           accountId: accountId,
           sessionId: sessionId,
-          mediaType: MediaType.Movie,
+          mediaType: MediaType.movie,
           mediaId: movieId,
           isFavourite: _isFavourite
       );
@@ -67,7 +69,7 @@ class MovieDetailsModel extends ChangeNotifier{
 
   void _handleApiClientException(ApiClienException exception) {
     switch(exception.type){
-      case ApiClienExceptionType.SessionExpired:
+      case ApiClienExceptionType.sessionExpired:
         onSessionExpired?.call();
       break;
     default:

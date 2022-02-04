@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:the_movie_db/Library/Widgets/Inherited/provider.dart';
-import 'package:the_movie_db/domain/api_client/api_client.dart';
+import 'package:the_movie_db/domain/api_client/image_downloader.dart';
 import 'package:the_movie_db/domain/entity/movie_details_credits.dart';
 import 'package:the_movie_db/ui/navigation/main_navigation.dart';
 
@@ -86,14 +86,14 @@ class _TopPosterWidget extends StatelessWidget {
       child: Stack(
         children: [
           (backdropPath != null)
-              ? Image.network(ApiClient.imageUrl(backdropPath))
+              ? Image.network(ImageDownloader.imageUrl(backdropPath))
               : const SizedBox.shrink(),
           Positioned(
               top: 20,
               left: 20,
               bottom: 20,
               child: (posterPath != null)
-                  ? Image.network(ApiClient.imageUrl(posterPath))
+                  ? Image.network(ImageDownloader.imageUrl(posterPath))
                   : const SizedBox.shrink()
           ),
           Positioned(
