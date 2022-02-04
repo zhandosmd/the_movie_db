@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:the_movie_db/domain/api_client/api_client.dart';
 import 'package:the_movie_db/domain/data_providers/session_data_prodiver.dart';
@@ -43,6 +41,7 @@ class AuthModel extends ChangeNotifier {
         case ApiClienExceptionType.Auth:
           _errorMessage = "Неверный логин пароль!";
           break;
+        case ApiClienExceptionType.SessionExpired:
         case ApiClienExceptionType.Other:
           _errorMessage = "Произошла ошибка. Попробуйте еще раз";
           break;

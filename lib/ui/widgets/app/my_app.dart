@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:the_movie_db/Library/Widgets/Inherited/provider.dart';
 import 'package:the_movie_db/ui/navigation/main_navigation.dart';
 import 'package:the_movie_db/ui/theme/app_colors.dart';
-import 'package:the_movie_db/ui/widgets/app/my_app_model.dart';
 
 class MyApp extends StatelessWidget {
   static final mainNavigation = MainNavigation(); // static потому чтобы не пересоздавалось, когда виджет заново создается
@@ -11,7 +9,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = Provider.read<MyAppModel>(context);
     return MaterialApp(
       title: 'Flutter Demo',
       localizationsDelegates: const [
@@ -35,7 +32,7 @@ class MyApp extends StatelessWidget {
           unselectedItemColor: Colors.grey
         )
       ),
-      initialRoute: mainNavigation.initialRoute(model?.isAuth == true),
+      initialRoute: MainNavigationRouteNames.loaderWidget,
       routes: mainNavigation.routes,
       onGenerateRoute: mainNavigation.onGenerateRoute,
     );

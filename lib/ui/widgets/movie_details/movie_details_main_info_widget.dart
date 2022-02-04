@@ -122,7 +122,6 @@ class _MovieNameWidget extends StatelessWidget {
     final model = NotifierProvider.watch<MovieDetailsModel>(context);
     var year = model?.movieDetails?.releaseDate?.year.toString();
     year = (year != null) ? ' ($year)' : '';
-
     return Center(
       child: RichText(
           maxLines: 3,
