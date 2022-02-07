@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:the_movie_db/Library/Widgets/Inherited/provider.dart' as old_provider;
+import 'package:the_movie_db/domain/data_providers/session_data_prodiver.dart';
 import 'package:the_movie_db/ui/widgets/auth/auth_model.dart';
 import 'package:the_movie_db/ui/widgets/auth/auth_widget.dart';
 import 'package:the_movie_db/ui/widgets/loader/loader_view_model.dart';
 import 'package:the_movie_db/ui/widgets/loader/loader_widget.dart';
-import 'package:the_movie_db/ui/widgets/main_screen/main_screen_model.dart';
 import 'package:the_movie_db/ui/widgets/main_screen/main_screen_widget.dart';
 import 'package:the_movie_db/ui/widgets/movie_details/movie_details_model.dart';
 import 'package:the_movie_db/ui/widgets/movie_details/movie_details_widget.dart';
+import 'package:the_movie_db/ui/widgets/movie_list/movie_list_model.dart';
+import 'package:the_movie_db/ui/widgets/movie_list/movie_list_widget.dart';
 import 'package:the_movie_db/ui/widgets/movie_trailer/movie_trailer_widget.dart';
 
 class ScreenFactory {
@@ -28,10 +30,7 @@ class ScreenFactory {
   }
 
   Widget makeMainScreen(){
-    return old_provider.NotifierProvider(
-        create: () => MainScreenModel(),
-        child: const MainScreenWidget()
-    );
+    return const MainScreenWidget();
   }
 
   Widget makeMovieDetails(int movieId, BuildContext context){
@@ -42,5 +41,25 @@ class ScreenFactory {
   }
   Widget makeMovieTrailer(String youtubeKey){
     return MovieTrailerWidget(youtubeKey: youtubeKey,);
+  }
+
+  Widget makeNewsList(){
+    return GestureDetector(
+      onTap: (){
+        SessionDataProvider().setSessionId(null);
+      },
+      child: const Center(child: Text('Новости'))
+    );
+  }
+
+  Widget makeMovieList(){
+    return ChangeNotifierProvider(
+      create: (_) => MovieListViewModel(),
+      child: const MovieListWidget()
+    );
+  }
+
+  Widget makeTVShowList(){
+    return const Text('Сериалы');
   }
 }

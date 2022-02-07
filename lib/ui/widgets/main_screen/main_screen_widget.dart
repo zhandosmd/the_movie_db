@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:the_movie_db/Library/Widgets/Inherited/provider.dart';
-import 'package:the_movie_db/domain/data_providers/session_data_prodiver.dart';
-import 'package:the_movie_db/ui/widgets/main_screen/main_screen_model.dart';
-import 'package:the_movie_db/ui/widgets/movie_list/movie_list_model.dart';
-import 'package:the_movie_db/ui/widgets/movie_list/movie_list_widget.dart';
+import 'package:the_movie_db/domain/factories/screen_factory.dart';
 
 class MainScreenWidget extends StatefulWidget {
   const MainScreenWidget({Key? key}) : super(key: key);
@@ -14,25 +10,16 @@ class MainScreenWidget extends StatefulWidget {
 
 class _MainScreenWidgetState extends State<MainScreenWidget> {
   int _selectedTab = 0;
-  final movieListModel = MovieListModel();
+  final _screenFactory = ScreenFactory();
 
   void onSelectTab(int index) {
     if (_selectedTab == index) return;
-
     _selectedTab = index;
     setState(() {});
-  }
-  
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    movieListModel.setupLocale(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    final model = NotifierProvider.read<MainScreenModel>(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('TMDB'),
@@ -40,18 +27,9 @@ class _MainScreenWidgetState extends State<MainScreenWidget> {
       body: IndexedStack( // хранить все виджеты на памяти тем самым сохраняя стейт
         index: _selectedTab,
         children: [
-          GestureDetector(
-            onTap: (){
-              SessionDataProvider().setSessionId(null);
-            },
-            child: const Center(child: Text('Новости'))
-          ),
-          NotifierProvider(
-            create: () => movieListModel,
-            isManagingModel: false,
-            child: const MovieListWidget()
-          ),
-          const Text('Сериалы'),
+          _screenFactory.makeNewsList(),
+          _screenFactory.makeMovieList(),
+          _screenFactory.makeTVShowList(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
