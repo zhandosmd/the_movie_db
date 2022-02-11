@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:the_movie_db/Library/Widgets/Inherited/provider.dart' as old_provider;
 import 'package:the_movie_db/domain/data_providers/session_data_prodiver.dart';
 import 'package:the_movie_db/ui/widgets/auth/auth_model.dart';
 import 'package:the_movie_db/ui/widgets/auth/auth_widget.dart';
@@ -33,9 +32,9 @@ class ScreenFactory {
     return const MainScreenWidget();
   }
 
-  Widget makeMovieDetails(int movieId, BuildContext context){
-    return old_provider.NotifierProvider(
-      create: () => MovieDetailsModel(movieId)..setupLocale(context),
+  Widget makeMovieDetails(int movieId){
+    return ChangeNotifierProvider(
+      create: (_) => MovieDetailsModel(movieId),
       child: const MovieDetailsWidget()
     );
   }
@@ -46,7 +45,7 @@ class ScreenFactory {
   Widget makeNewsList(){
     return GestureDetector(
       onTap: (){
-        SessionDataProvider().setSessionId(null);
+        SessionDataProvider().deleteSessionId();
       },
       child: const Center(child: Text('Новости'))
     );

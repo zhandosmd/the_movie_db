@@ -5,18 +5,48 @@ import 'package:the_movie_db/domain/api_client/movie_api_client.dart';
 import 'package:the_movie_db/domain/api_client/api_client_exception.dart';
 import 'package:the_movie_db/domain/data_providers/session_data_prodiver.dart';
 import 'package:the_movie_db/domain/entity/movie_details.dart';
+import 'package:the_movie_db/domain/services/auth_service.dart';
+import 'package:the_movie_db/ui/navigation/main_navigation.dart';
+
+class MovieDetailsPosterData{
+  final String? backdropPath;
+  final String? posterPath;
+  final IconData favoriteIcon;
+
+  MovieDetailsPosterData({
+    this.backdropPath,
+    this.posterPath,
+    this.favoriteIcon = Icons.favorite_border,
+  });
+}
+
+class MovieDetailsMovieNameData{
+  final String title;
+  final String year;
+
+  MovieDetailsMovieNameData({required this.title, required this.year});
+}
+
+class MovieDetailsData{
+  String title = '';
+  bool isLoading = true;
+  String overview = '';
+  MovieDetailsPosterData posterData = MovieDetailsPosterData();
+  MovieDetailsMovieNameData nameData = MovieDetailsMovieNameData(title: '', year: '');
+}
 
 class MovieDetailsModel extends ChangeNotifier{
+  final _authService = AuthService();
   final _sessionDataProvider = SessionDataProvider();
   final _movieApiClient = MovieApiClient();
   final _accountApiClient = AccountApiClient();
 
   final int movieId;
+  final data = MovieDetailsData();
   bool _isFavourite = false;
   MovieDetails? _movieDetails;
   String _locale = '';
   late DateFormat _dateFormat;
-  Future<void>? Function()? onSessionExpired;
 
   MovieDetailsModel(this.movieId);
 
@@ -30,23 +60,47 @@ class MovieDetailsModel extends ChangeNotifier{
     if(_locale == locale) return;
     _locale = locale;
     _dateFormat = DateFormat.yMMMMd(locale);
-    await loadDetails();
+    updateData(null, false);
+    await loadDetails(context);
   }
 
-  Future<void> loadDetails() async{
+  Future<void> loadDetails(BuildContext context) async{
     try{
       _movieDetails = await _movieApiClient.movieDetails(movieId, _locale);
       final sessionId = await _sessionDataProvider.getSessionId();
       if(sessionId != null){
         _isFavourite = await _movieApiClient.movieStates(movieId, sessionId);
       }
+      updateData(_movieDetails, _isFavourite);
       notifyListeners();
     }on ApiClienException catch (e){
-      _handleApiClientException(e);
+      _handleApiClientException(e, context);
     }
   }
 
-  Future<void> markAsFavourite() async {
+  void updateData(MovieDetails? details, bool isFavourite){
+    data.title = details?.title ?? 'Loading...';
+    data.isLoading = details == null;
+    if(details == null){
+      notifyListeners();
+      return;
+    }
+    data.overview = details.overview ?? '';
+    final iconData = isFavourite ? Icons.favorite : Icons.favorite_outline;
+    data.posterData = MovieDetailsPosterData(
+      backdropPath: details.backdropPath,
+      posterPath: details.posterPath,
+      favoriteIcon: iconData
+    );
+    var year = details.releaseDate?.year.toString();
+    year = (year != null) ? ' ($year)' : '';
+    data.nameData = MovieDetailsMovieNameData(
+      title: details.title, year: year
+    );
+    notifyListeners();
+  }
+
+  Future<void> toggleFavorite(BuildContext context) async {
     final accountId = await _sessionDataProvider.getAccountId();
     final sessionId = await _sessionDataProvider.getSessionId();
 
@@ -63,14 +117,15 @@ class MovieDetailsModel extends ChangeNotifier{
           isFavourite: _isFavourite
       );
     }on ApiClienException catch (e){
-      _handleApiClientException(e);
+      _handleApiClientException(e, context);
     }
   }
 
-  void _handleApiClientException(ApiClienException exception) {
+  void _handleApiClientException(ApiClienException exception, BuildContext context) {
     switch(exception.type){
       case ApiClienExceptionType.sessionExpired:
-        onSessionExpired?.call();
+        _authService.logout();
+        MainNavigation.resetNavigation(context);
       break;
     default:
       print(exception);

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:the_movie_db/Library/Widgets/Inherited/provider.dart';
-import 'package:the_movie_db/domain/api_client/movie_api_client.dart';
+import 'package:provider/provider.dart';
 import 'package:the_movie_db/domain/api_client/image_downloader.dart';
 
 import 'movie_details_model.dart';
@@ -42,8 +41,7 @@ class _ActorListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = NotifierProvider.watch<MovieDetailsModel>(context);
-    final cast = model?.movieDetails?.credits.cast;
+    final cast = context.select((MovieDetailsModel vm) => vm.movieDetails?.credits.cast);
     if(cast == null || cast.isEmpty) return const SizedBox.shrink();
 
     return ListView.builder(
@@ -68,8 +66,8 @@ class _ActorListItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = NotifierProvider.read<MovieDetailsModel>(context);
-    final actor = model!.movieDetails!.credits.cast[actorIndex];
+    final model = context.read<MovieDetailsModel>();
+    final actor = model.movieDetails!.credits.cast[actorIndex];
     final profilePath = actor.profilePath;
 
     return Padding(
