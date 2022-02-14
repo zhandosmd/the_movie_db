@@ -41,13 +41,13 @@ class _ActorListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cast = context.select((MovieDetailsModel vm) => vm.movieDetails?.credits.cast);
-    if(cast == null || cast.isEmpty) return const SizedBox.shrink();
+    final actorsData = context.select((MovieDetailsModel vm) => vm.data.actorsData);
+    if(actorsData.isEmpty) return const SizedBox.shrink();
 
     return ListView.builder(
       physics: const BouncingScrollPhysics(),
       scrollDirection: Axis.horizontal,
-      itemCount: cast.length,
+      itemCount: actorsData.length,
       itemExtent: 120,
       itemBuilder: (context, index){
         return _ActorListItemWidget(
@@ -67,7 +67,7 @@ class _ActorListItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = context.read<MovieDetailsModel>();
-    final actor = model.movieDetails!.credits.cast[actorIndex];
+    final actor = model.data.actorsData[actorIndex];
     final profilePath = actor.profilePath;
 
     return Padding(
@@ -90,14 +90,13 @@ class _ActorListItemWidget extends StatelessWidget {
           clipBehavior: Clip.hardEdge,
           child: Column(
             children: [
-              (profilePath!=null)
-                ? Image.network(
-                    ImageDownloader.imageUrl(profilePath),
-                    height: 120,
-                    width: 120,
-                    fit: BoxFit.fitWidth,
-                  )
-                : const SizedBox.shrink(),
+              if(profilePath!=null)
+                Image.network(
+                  ImageDownloader.imageUrl(profilePath),
+                  height: 120,
+                  width: 120,
+                  fit: BoxFit.fitWidth,
+                ),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),

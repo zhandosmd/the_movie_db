@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:the_movie_db/domain/api_client/image_downloader.dart';
-import 'package:the_movie_db/domain/entity/movie_details_credits.dart';
 import 'package:the_movie_db/ui/navigation/main_navigation.dart';
 
 import 'movie_details_model.dart';
@@ -145,20 +144,15 @@ class _ScoreWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final movieDetails = context.select((MovieDetailsModel vm) => vm.movieDetails);
-
-    var voteAverage = movieDetails?.voteAverage ?? 0;
-    voteAverage.toInt();
-    final videos = movieDetails?.videos.results
-        .where((video) => video.type == 'Trailer' && video.site == 'YouTube');
-    final trailerKey = videos?.isNotEmpty == true ? videos?.first.key : null;
+    final scoreData = context.select((MovieDetailsModel vm) => vm.data.scoreData);
+    final trailerKey = scoreData.trailerKey;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         TextButton(onPressed: () {}, child: Row(
           children: [
-            Text('$voteAverage', style: const TextStyle(fontSize: 20),),
+            Text('${scoreData.voteAverage}', style: const TextStyle(fontSize: 20),),
             const SizedBox(width: 10,),
             const Text('User Score'),
           ],
@@ -168,19 +162,19 @@ class _ScoreWidget extends StatelessWidget {
           height: 15,
           color: Colors.grey,
         ),
-        (trailerKey != null) ? TextButton(
-            onPressed: () =>
-                Navigator.of(context).pushNamed(
-                    MainNavigationRouteNames.movieTrailer,
-                    arguments: trailerKey
-                ),
-            child: Row(
-              children: const [
-                Icon(Icons.play_arrow),
-                SizedBox(width: 10,),
-                Text('Play Trailer'),
-              ],
-            )) : const SizedBox.shrink(),
+        if (trailerKey != null)TextButton(
+          onPressed: () =>
+              Navigator.of(context).pushNamed(
+                  MainNavigationRouteNames.movieTrailer,
+                  arguments: trailerKey
+              ),
+          child: Row(
+            children: const [
+              Icon(Icons.play_arrow),
+              SizedBox(width: 10,),
+              Text('Play Trailer'),
+            ],
+        ))
       ],
     );
   }
@@ -192,37 +186,13 @@ class _SummaryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.read<MovieDetailsModel>();
-    final movieDetails = context.select((MovieDetailsModel vm) => vm.movieDetails);
-
-    var texts = <String>[];
-    final releaseDate = movieDetails?.releaseDate;
-    if (releaseDate != null) {
-      texts.add(model.stringFromDate(releaseDate));
-    }
-    final productionCountries = movieDetails?.productionCountries;
-    if (productionCountries != null && productionCountries.isNotEmpty) {
-      texts.add('(${productionCountries.first.iso})');
-    }
-    final runtime = movieDetails?.runtime ?? 0;
-    final duration = Duration(minutes: runtime);
-    final hours = duration.inHours;
-    final minutes = duration.inMinutes.remainder(60);
-    texts.add('${hours}h ${minutes}m');
-    final genres = movieDetails?.genres;
-    if (genres != null) {
-      var genresNames = <String>[];
-      for (var genre in genres) {
-        genresNames.add(genre.name);
-      }
-      texts.add(genresNames.join(', '));
-    }
+    final summary = context.select((MovieDetailsModel vm) => vm.data.summary);
     return ColoredBox(
       color: const Color.fromRGBO(22, 21, 25, 1),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
         child: Text(
-          texts.join(' '),
+          summary,
           maxLines: 3,
           textAlign: TextAlign.center,
           style: const TextStyle(
@@ -240,16 +210,8 @@ class _PeopleWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var crew = context.select((MovieDetailsModel vm) => vm.movieDetails?.credits.crew);
-
-    if (crew == null || crew.isEmpty) return const SizedBox.shrink();
-    crew = (crew.length > 4) ? crew.sublist(0, 4) : crew;
-    var crewChunks = <List<Employee>>[];
-    for (var i = 0; i < crew.length; i += 2) {
-      crewChunks.add(
-        crew.sublist(i, i + 2 > crew.length ? crew.length : i + 2),
-      );
-    }
+    final crewChunks = context.select((MovieDetailsModel vm) => vm.data.peopleData);
+    if(crewChunks.isEmpty) return const SizedBox.shrink();
     return Column(
       children: crewChunks
           .map((chunk) =>
@@ -263,7 +225,7 @@ class _PeopleWidget extends StatelessWidget {
 }
 
 class _PeopleWidgetsRow extends StatelessWidget {
-  final List<Employee> employes;
+  final List<MovieDetailsMoviePeopleData> employes;
 
   const _PeopleWidgetsRow({Key? key, required this.employes}) : super(key: key);
 
@@ -279,7 +241,7 @@ class _PeopleWidgetsRow extends StatelessWidget {
 }
 
 class _PeopleWidgetsRowItem extends StatelessWidget {
-  final Employee employee;
+  final MovieDetailsMoviePeopleData employee;
 
   const _PeopleWidgetsRowItem({Key? key, required this.employee})
       : super(key: key);
